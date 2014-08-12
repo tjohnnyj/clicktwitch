@@ -7,7 +7,7 @@ group :development, :test do
 end
 
 group :production do
-     gem 'pg'
+     gem 'pg' 
      gem 'rails_12factor'
 end        
 
@@ -20,9 +20,12 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0',          group: :doc
 gem 'spring',        group: :development    
 
-gem 'devise'  
+gem 'devise'   
+gem 'devise-twitter'
 gem 'bootstrap-sass'
 
+gem 'httparty'
+gem 'google-api-client'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

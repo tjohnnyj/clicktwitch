@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
-  devise_for :users
+  resources :searches
+
+  devise_for :user do
+    match '/user/sign_in/twitter' => Devise::Twitter::Rack::Signin
+    match '/user/connect/twitter' => Devise::Twitter::Rack::Connect
+  end  
+  
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
