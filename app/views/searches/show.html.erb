@@ -3,7 +3,7 @@
 <p>
   <strong>Term:</strong>
   <%= @search.term %>
-  <%= @search.request_oauth_token %>
+  <%= @search.run_search(@search.term) %>
 </p>
 
 <%= link_to 'Edit', edit_search_path(@search) %> |

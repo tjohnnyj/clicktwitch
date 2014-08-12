@@ -2,14 +2,25 @@ class Search < ActiveRecord::Base
   SEARCH_API_URL = "https://api.twitter.com/1.1/search/tweets.json"
   TW_CON_KEY = "SktO7It8OIBRlUzkUmLUJdmxM"
   TW_CON_SCRT = "lT8Plk7ezlwUzyXP1EC03YyqKpGIEbyKW9p11Uvim8TifO8hOp"
-  OAUTH_URL = "https://api.twitter.com/oauth2/token:443"
+  OAUTH_URL = "https://api.twitter.com/oauth2/token"
    
-  
-  def run_search
-#     parser = HTTParty::Parser.new(response, :json)  
-    results = HTTParty.post(SEARCH_API_URL, 
-    :body => @message_hash.to_json,
-    :headers => { 'Content-Type' => 'application/json' } )
+  def run_search(query)
+    token = request_oauth_token
+    conn = Faraday.new SEARCH_API_URL do |c|
+      c.request :oauth2, token
+      c.response :json, :content_type => /\bjson$/
+
+      c.use :instrumentation
+      c.adapter :net_http 
+    end
+    logger.info(conn)
+    
+    response = conn.get do |req|
+      req.url '/1.1/search/tweets.json'
+      req.params = { 'q' => query, 'result_type' => 'mixed', 'count' => 5 }
+      logger.info(req)
+    end 
+    logger.info(response.body) 
   end
   
   def encode_oauth_info 
@@ -20,26 +31,23 @@ class Search < ActiveRecord::Base
   end                                         
   
   def request_oauth_token 
+    logger = Logger.new(STDOUT) 
     bearer_token = "#{TW_CON_KEY}:#{TW_CON_SCRT}"
     encoded_bearer_token = Base64.strict_encode64(bearer_token)
-
-    url = URI.parse("https://api.twitter.com/oauth2/token")
-
-    https = Net::HTTP.new(url.host, 443)
-    https.use_ssl = true
-
-    https.start do
-      header = {}
-      header["Authorization"] = "Basic #{encoded_bearer_token}"
-      header["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8"
-
-      req = Net::HTTP::Post.new(url.path, header)
-      req.body = "grant_type=client_credentials"
-
-      resp = https.request(req)
-      puts resp.body
-      logger.info(resp.body)
-    end     
+    
+    conn = Faraday.new(:url => "https://api.twitter.com")
+    conn.adapter :net_http
+    conn.response :json, :content_type => /\bjson$/
+    
+    response = conn.post do |req|
+      req.url '/oauth2/token'
+      req.headers["Authorization"] = "Basic #{encoded_bearer_token}"
+      req.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+      req.params = {'grant_type'=>'client_credentials'}
+    end 
+    logger.info(response.body)
+    access_token = response.body["access_token"]
+    return access_token
   end
 
 end

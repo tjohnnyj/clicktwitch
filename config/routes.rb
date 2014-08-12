@@ -1,10 +1,8 @@
 Rails.application.routes.draw do
+  devise_for :users, :controllers => { omniauth_callbacks: 'omniauth_callbacks' }
   resources :searches
-
-  devise_for :user do
-    match '/user/sign_in/twitter' => Devise::Twitter::Rack::Signin
-    match '/user/connect/twitter' => Devise::Twitter::Rack::Connect
-  end  
+  
+  match '/users/:id/finish_signup' => 'users#finish_signup', via: [:get, :patch], :as => :finish_signup
   
 
   # The priority is based upon order of creation: first created -> highest priority.

@@ -20,11 +20,17 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0',          group: :doc
 gem 'spring',        group: :development    
 
-gem 'devise'   
-gem 'devise-twitter'
+gem 'devise'
+gem 'omniauth'
+gem 'omniauth-twitter'
+gem 'omniauth-facebook'
+gem 'omniauth-linkedin'
+
 gem 'bootstrap-sass'
 
 gem 'httparty'
+gem 'faraday'
+gem 'faraday_middleware'
 gem 'google-api-client'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
