@@ -4,23 +4,66 @@ class Search < ActiveRecord::Base
   TW_CON_SCRT = "lT8Plk7ezlwUzyXP1EC03YyqKpGIEbyKW9p11Uvim8TifO8hOp"
   OAUTH_URL = "https://api.twitter.com/oauth2/token"
    
-  def run_search(query)
-    token = request_oauth_token
+  def run_search(query, current_user_id)
+    token = token_for_user(current_user_id)
     conn = Faraday.new SEARCH_API_URL do |c|
-      c.request :oauth2, token
       c.response :json, :content_type => /\bjson$/
 
       c.use :instrumentation
       c.adapter :net_http 
     end
     logger.info(conn)
-    
-    response = conn.get do |req|
+    string = build_signature_request(query, current_user_id)  
+    response = conn.post do |req|
+      req.headers["Authorization"] = string
       req.url '/1.1/search/tweets.json'
       req.params = { 'q' => query, 'result_type' => 'mixed', 'count' => 5 }
       logger.info(req)
     end 
     logger.info(response.body) 
+  end
+  
+  def build_signature_request(query, current_user_id)
+    q = encode_query(query)
+    url = encoded_url
+    nonce = get_oauth_nonce
+    options = get_options 
+    time = Time.now.to_i    
+    token = token_for_user(current_user_id)
+    signature = "#{url}&include_entities=true&oauth_consumer_key=#{TW_CON_KEY}&oauth_nonce=#{nonce}&oauth_signature_method=HMAC-SHA1&oauth_timestamp=#{time}&oauth_token=#{token}&oauth_version=1.0&&#{q}&#{options}"
+    signature = OAuth::Helper.escape(signature) 
+    signed = "OAUTH #{signature}"
+    return signed
+  end
+  
+  def encoded_url
+    string = "GET #{SEARCH_API_URL}"
+    encoded_string = OAuth::Helper.escape(string)
+    return encoded_string
+  end
+  
+  def encode_query(query)
+    q = OAuth::Helper.escape(query)
+    return q
+  end 
+  
+  def get_oauth_nonce
+    nonce = SecureRandom.hex(32)
+    return nonce
+  end
+  
+  def get_options
+    result_type = "mixed"
+    count = 10
+    search_options = "#{result_type}&#{count}"
+    encoded_options = OAuth::Helper.escape(search_options)
+    return  encoded_options
+  end
+  
+  def token_for_user(current_user_id)
+    @user = User.find(current_user_id)    
+    token = @user.confirmation_token
+    return token
   end
   
   def encode_oauth_info 

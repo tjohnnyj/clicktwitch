@@ -2,8 +2,9 @@
 
 <p>
   <strong>Term:</strong>
+  <%= current_user.inspect %>
   <%= @search.term %>
-  <%= @search.run_search(@search.term) %>
+  <%= @search.run_search(@search.term, current_user.id) %>
 </p>
 
 <%= link_to 'Edit', edit_search_path(@search) %> |

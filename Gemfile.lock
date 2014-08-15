@@ -202,6 +202,7 @@ DEPENDENCIES
   httparty
   jbuilder (~> 2.0)
   jquery-rails
+  oauth
   omniauth
   omniauth-facebook
   omniauth-linkedin

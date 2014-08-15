@@ -31,7 +31,8 @@ gem 'bootstrap-sass'
 gem 'httparty'
 gem 'faraday'
 gem 'faraday_middleware'
-gem 'google-api-client'
+gem 'google-api-client'    
+gem 'oauth'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

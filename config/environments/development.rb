@@ -12,7 +12,7 @@ Rails.application.configure do
   config.eager_load = false 
   
   #use this in order to avoid nasty SSL errors in development
-  #OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+  OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
   
 
   # Show full error reports and disable caching.
