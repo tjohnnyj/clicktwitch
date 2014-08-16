@@ -33,6 +33,9 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'google-api-client'    
 gem 'oauth'
+gem 'twitter'
+gem 'redis-rails'
+require 'redis'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

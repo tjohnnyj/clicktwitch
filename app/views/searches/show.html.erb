@@ -4,7 +4,8 @@
   <strong>Term:</strong>
   <%= current_user.inspect %>
   <%= @search.term %>
-  <%= @search.run_search(@search.term, current_user.id) %>
+  <% tweets = @search.query_twitter(@search.term) %>
+  <%= tweets %>
 </p>
 
 <%= link_to 'Edit', edit_search_path(@search) %> |
