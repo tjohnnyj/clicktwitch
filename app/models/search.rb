@@ -16,6 +16,16 @@ class Search < ActiveRecord::Base
     end
   end
   
+  def get_cache_or_search(term,search_id)
+    search_key = "sch:#{search_id}"
+    results_list = $redis.lrange("#{search_key}", 0,-1)
+    if results_list.empty? == true
+      query_twitter(term, search_id) 
+    else
+      return results_list
+    end
+  end
+  
   def query_twitter(term, search_id)
     @logger = Logger.new(STDOUT) 
     client = new_client
@@ -23,20 +33,29 @@ class Search < ActiveRecord::Base
     logger.info(response[0].attrs)   
     tweets = []
     response.each do |r|
-      tweets << r.to_h
+      r =  r.to_h  
+      tweets << r
     end
     cache_tweets(tweets, search_id)
-    return tweets
+    #return tweets
   end
   
   def cache_tweets(tweets, search_id)
     search_key = "sch:#{search_id}"
-    $redis.del search_key
+    #$redis.del("#{search_key}")
     tweets.each do |tw|
-       $redis.rpush search_key, tw.to_json
+      tweet_key = tw[:id] 
+      $redis[tweet_key] = tw.to_json
+      #tt = JSON.parse($redis.get(tweet_key))
+      #return tt  
+      $redis.rpush("#{search_key}", tweet_key)
+      #$redis.lrange("ch:#{search_id}", -1,0)
+      #puts tweet_key
     end
-    ct = $redis.lrange(search_key, 0, -1)
-    return ct
+    #ct = JSON.parse($redis.get(tweet_key))  501005885054132224
+    return $redis.lrange("#{search_key}", 0,-1)
+    #ct = $redis.smembers search_key
+    #return ct
   end
   
 

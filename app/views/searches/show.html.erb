@@ -4,7 +4,7 @@
   <strong>Term:</strong>
   <%= current_user.inspect %>
   <%= @search.term %>
-  <% tweets = @search.query_twitter(@search.term) %>
+  <% tweets = @search.get_cache_or_search(@search.term, @search.id) %>
   <%= tweets %>
 </p>
 
